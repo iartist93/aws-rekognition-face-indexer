@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import AWS from 'aws-sdk';
+import { getAWSServices } from '@/utils/aws-config';
 
 export async function POST(request) {
   try {
@@ -13,17 +13,7 @@ export async function POST(request) {
       );
     }
 
-    // Configure AWS
-    AWS.config.update({ region });
-
-    // Create AWS credentials from environment variables
-    AWS.config.credentials = new AWS.Credentials({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    });
-
-    const s3 = new AWS.S3();
-    const rekognition = new AWS.Rekognition();
+    const { s3, rekognition } = getAWSServices(region);
 
     // List all objects in the folder
     const listParams = {

@@ -1,5 +1,6 @@
 'use client';
 
+import { getAWSServices } from '@/utils/aws-config';
 import { useState } from 'react';
 
 export default function Home() {
@@ -7,7 +8,7 @@ export default function Home() {
   const [folderPath, setFolderPath] = useState('');
   const [collectionId, setCollectionId] = useState('');
   const [personId, setPersonId] = useState('');
-  const [region, setRegion] = useState('us-east-1');
+  const [region, setRegion] = useState(process.env.AWS_REGION || 'eu-west-1');
   const [status, setStatus] = useState('');
   const [logs, setLogs] = useState([]);
 
