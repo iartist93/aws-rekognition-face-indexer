@@ -12,7 +12,7 @@ export function IndexFaces({ addLog, setStatus }: IndexFacesProps) {
     process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
   );
   const [folderPath, setFolderPath] = useState(
-    process.env.NEXT_PUBLIC_FOLDER_NAME,
+    process.env.NEXT_PERSON_FOLDER_NAME,
   );
   const [collectionId, setCollectionId] = useState(
     process.env.NEXT_PUBLIC_COLLECTION_ID,

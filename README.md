@@ -11,6 +11,16 @@ npm run dev
 
 ## Environment Variables
 
-- `AWS_ACCESS_KEY_ID`: Your AWS access key ID
-- `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key
-- `AWS_REGION`: The AWS region to use (e.g. `us-east-1`)
+```env
+AWS_ACCESS_KEY_ID=<your-access-key-id>
+AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
+AWS_REGION=<your-region>
+AWS_SNS_TOPIC_ARN=<your-sns-topic-arn>
+AWS_REKOGNITION_ROLE_ARN=<your-rekognition-role-arn>
+AWS_LAMBDA_ROLE_ARN=<your-lambda-role-arn>
+NEXT_PUBLIC_COLLECTION_ID=<your-collection-id>
+NEXT_PUBLIC_S3_BUCKET_NAME=<your-s3-bucket-name>
+NEXT_PERSON_FOLDER_NAME=<your-person-folder-name>
+NEXT_PUBLIC_PERSON_ID=<your-person-id>
+NEXT_PUBLIC_VIDEO_KEY=<path-to-search-video>
+```
