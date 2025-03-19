@@ -1,0 +1,33 @@
+service: nextjs-rekognition-service
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-west-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - 'sns:Subscribe'
+            - 'sns:Receive'
+          Resource: arn:aws:sns:eu-west-1:592084037945:rekognition-completed
+
+functions:
+  processVideoFaceSearch:
+    handler: src/lambda/processVideoFaceSearch.handler
+    name: process-video-face-search
+    package:
+      individually: true
+      patterns:
+        - '!node_modules/**'
+        - '!./**'
+        - src/lambda/processVideoFaceSearch.js
+        # Add any additional dependencies your function needs
+        # - 'node_modules/some-required-package/**'
+    events:
+      - sns:
+          arn: arn:aws:sns:eu-west-1:592084037945:rekognition-completed
+          topicName: rekognition-completed

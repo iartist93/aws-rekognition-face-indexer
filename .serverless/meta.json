@@ -1,0 +1,645 @@
+{
+  "/Users/uaymaah/code/batman/aws/aws-rekognition-face-indexer/serverless.yml": {
+    "versionFramework": "4.9.0",
+    "servicePath": "/Users/uaymaah/code/batman/aws/aws-rekognition-face-indexer/serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "nextjs-rekognition-service",
+      "frameworkVersion": "4",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "region": "eu-west-1",
+        "iam": {
+          "role": {
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "sns:Subscribe",
+                  "sns:Receive"
+                ],
+                "Resource": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed"
+              }
+            ]
+          }
+        },
+        "stage": "dev",
+        "versionFunctions": true,
+        "compiledCloudFormationTemplate": {
+          "AWSTemplateFormatVersion": "2010-09-09",
+          "Description": "The AWS CloudFormation template for this Serverless application",
+          "Resources": {
+            "ProcessVideoFaceSearchLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/process-video-face-search"
+              }
+            },
+            "IamRoleLambdaExecution": {
+              "Type": "AWS::IAM::Role",
+              "Properties": {
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": [
+                          "lambda.amazonaws.com"
+                        ]
+                      },
+                      "Action": [
+                        "sts:AssumeRole"
+                      ]
+                    }
+                  ]
+                },
+                "Policies": [
+                  {
+                    "PolicyName": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          "nextjs-rekognition-service",
+                          "dev",
+                          "lambda"
+                        ]
+                      ]
+                    },
+                    "PolicyDocument": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:CreateLogStream",
+                            "logs:CreateLogGroup",
+                            "logs:TagResource"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/process-video-face-search:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:PutLogEvents"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/process-video-face-search:*:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "sns:Subscribe",
+                            "sns:Receive"
+                          ],
+                          "Resource": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Path": "/",
+                "RoleName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "nextjs-rekognition-service",
+                      "dev",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "lambdaRole"
+                    ]
+                  ]
+                }
+              }
+            },
+            "ProcessVideoFaceSearchLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-eu-west-1-a246a3c4-abfa",
+                  "S3Key": "serverless/nextjs-rekognition-service/dev/1742414009516-2025-03-19T19:53:29.516Z/processVideoFaceSearch.zip"
+                },
+                "Handler": "src/lambda/processVideoFaceSearch.handler",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "process-video-face-search",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "ProcessVideoFaceSearchLogGroup"
+              ]
+            },
+            "ProcessVideoFaceSearchLambdaVersion134OgVBMLGwSbgboorRXd4JyGk0pNmmxYofqiegjY": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "ProcessVideoFaceSearchLambdaFunction"
+                },
+                "CodeSha256": "3vcLyjoyZdB/7qM39cU1Mv+zrTCoQZjDWBhb+cbJc68="
+              }
+            },
+            "ProcessVideoFaceSearchSnsSubscriptionRekognitioncompleted": {
+              "Type": "AWS::SNS::Subscription",
+              "Properties": {
+                "TopicArn": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed",
+                "Protocol": "lambda",
+                "Endpoint": {
+                  "Fn::GetAtt": [
+                    "ProcessVideoFaceSearchLambdaFunction",
+                    "Arn"
+                  ]
+                }
+              }
+            },
+            "ProcessVideoFaceSearchLambdaPermissionRekognitioncompletedSNS": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "ProcessVideoFaceSearchLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "sns.amazonaws.com",
+                "SourceArn": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed"
+              }
+            }
+          },
+          "Outputs": {
+            "ServerlessDeploymentBucketName": {
+              "Value": "serverless-framework-deployments-eu-west-1-a246a3c4-abfa",
+              "Export": {
+                "Name": "sls-nextjs-rekognition-service-dev-ServerlessDeploymentBucketName"
+              }
+            },
+            "ProcessVideoFaceSearchLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "ProcessVideoFaceSearchLambdaVersion134OgVBMLGwSbgboorRXd4JyGk0pNmmxYofqiegjY"
+              },
+              "Export": {
+                "Name": "sls-nextjs-rekognition-service-dev-ProcessVideoFaceSearchLambdaFunctionQualifiedArn"
+              }
+            }
+          }
+        },
+        "vpc": {}
+      },
+      "functions": {
+        "processVideoFaceSearch": {
+          "handler": "src/lambda/processVideoFaceSearch.handler",
+          "name": "process-video-face-search",
+          "package": {
+            "individually": true,
+            "patterns": [
+              "!node_modules/**",
+              "!./**",
+              "src/lambda/processVideoFaceSearch.js"
+            ],
+            "artifact": ".serverless/processVideoFaceSearch.zip"
+          },
+          "events": [
+            {
+              "sns": {
+                "arn": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed",
+                "topicName": "rekognition-completed"
+              }
+            }
+          ],
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "ProcessVideoFaceSearchLambdaVersion134OgVBMLGwSbgboorRXd4JyGk0pNmmxYofqiegjY"
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs18.x",
+      "region": "eu-west-1",
+      "iam": {
+        "role": {
+          "statements": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "sns:Subscribe",
+                "sns:Receive"
+              ],
+              "Resource": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed"
+            }
+          ]
+        }
+      },
+      "stage": "dev",
+      "versionFunctions": true,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ProcessVideoFaceSearchLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/process-video-face-search"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "nextjs-rekognition-service",
+                        "dev",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup",
+                          "logs:TagResource"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/process-video-face-search:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/process-video-face-search:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sns:Subscribe",
+                          "sns:Receive"
+                        ],
+                        "Resource": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "nextjs-rekognition-service",
+                    "dev",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "ProcessVideoFaceSearchLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-eu-west-1-a246a3c4-abfa",
+                "S3Key": "serverless/nextjs-rekognition-service/dev/1742414009516-2025-03-19T19:53:29.516Z/processVideoFaceSearch.zip"
+              },
+              "Handler": "src/lambda/processVideoFaceSearch.handler",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "process-video-face-search",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "ProcessVideoFaceSearchLogGroup"
+            ]
+          },
+          "ProcessVideoFaceSearchLambdaVersion134OgVBMLGwSbgboorRXd4JyGk0pNmmxYofqiegjY": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "ProcessVideoFaceSearchLambdaFunction"
+              },
+              "CodeSha256": "3vcLyjoyZdB/7qM39cU1Mv+zrTCoQZjDWBhb+cbJc68="
+            }
+          },
+          "ProcessVideoFaceSearchSnsSubscriptionRekognitioncompleted": {
+            "Type": "AWS::SNS::Subscription",
+            "Properties": {
+              "TopicArn": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed",
+              "Protocol": "lambda",
+              "Endpoint": {
+                "Fn::GetAtt": [
+                  "ProcessVideoFaceSearchLambdaFunction",
+                  "Arn"
+                ]
+              }
+            }
+          },
+          "ProcessVideoFaceSearchLambdaPermissionRekognitioncompletedSNS": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "ProcessVideoFaceSearchLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "sns.amazonaws.com",
+              "SourceArn": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed"
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": "serverless-framework-deployments-eu-west-1-a246a3c4-abfa",
+            "Export": {
+              "Name": "sls-nextjs-rekognition-service-dev-ServerlessDeploymentBucketName"
+            }
+          },
+          "ProcessVideoFaceSearchLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "ProcessVideoFaceSearchLambdaVersion134OgVBMLGwSbgboorRXd4JyGk0pNmmxYofqiegjY"
+            },
+            "Export": {
+              "Name": "sls-nextjs-rekognition-service-dev-ProcessVideoFaceSearchLambdaFunctionQualifiedArn"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "service: nextjs-rekognition-service\n\nframeworkVersion: '4'\n\nprovider:\n  name: aws\n  runtime: nodejs18.x\n  region: eu-west-1\n  iam:\n    role:\n      statements:\n        - Effect: Allow\n          Action:\n            - 'sns:Subscribe'\n            - 'sns:Receive'\n          Resource: arn:aws:sns:eu-west-1:592084037945:rekognition-completed\n\nfunctions:\n  processVideoFaceSearch:\n    handler: src/lambda/processVideoFaceSearch.handler\n    name: process-video-face-search\n    package:\n      individually: true\n      patterns:\n        - '!node_modules/**'\n        - '!./**'\n        - src/lambda/processVideoFaceSearch.js\n        # Add any additional dependencies your function needs\n        # - 'node_modules/some-required-package/**'\n    events:\n      - sns:\n          arn: arn:aws:sns:eu-west-1:592084037945:rekognition-completed\n          topicName: rekognition-completed",
+    "command": [
+      "deploy"
+    ],
+    "options": {},
+    "orgId": "42b29c98-6b33-46b7-805e-0c50996f4940",
+    "orgName": "ahmedayman",
+    "userId": "vcKl8bKmStdSKGRnPZ",
+    "userName": "ahmedayman",
+    "serviceProviderAwsAccountId": "592084037945",
+    "serviceProviderAwsCfStackName": "nextjs-rekognition-service-dev",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:eu-west-1:592084037945:stack/nextjs-rekognition-service-dev/d7314c40-04fb-11f0-aa88-0e26e1a5fca3",
+    "serviceProviderAwsCfStackCreated": "2025-03-19T19:53:34.515Z",
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": "CREATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "ProcessVideoFaceSearchLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:eu-west-1:592084037945:function:process-video-face-search:1",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-nextjs-rekognition-service-dev-ProcessVideoFaceSearchLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-eu-west-1-a246a3c4-abfa",
+        "ExportName": "sls-nextjs-rekognition-service-dev-ServerlessDeploymentBucketName"
+      }
+    ],
+    "compiledCloudFormationTemplate": {
+      "AWSTemplateFormatVersion": "2010-09-09",
+      "Description": "The AWS CloudFormation template for this Serverless application",
+      "Resources": {
+        "ProcessVideoFaceSearchLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/process-video-face-search"
+          }
+        },
+        "IamRoleLambdaExecution": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "lambda.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            },
+            "Policies": [
+              {
+                "PolicyName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "nextjs-rekognition-service",
+                      "dev",
+                      "lambda"
+                    ]
+                  ]
+                },
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:CreateLogStream",
+                        "logs:CreateLogGroup",
+                        "logs:TagResource"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/process-video-face-search:*"
+                        }
+                      ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/process-video-face-search:*:*"
+                        }
+                      ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "sns:Subscribe",
+                        "sns:Receive"
+                      ],
+                      "Resource": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed"
+                    }
+                  ]
+                }
+              }
+            ],
+            "Path": "/",
+            "RoleName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "nextjs-rekognition-service",
+                  "dev",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "lambdaRole"
+                ]
+              ]
+            }
+          }
+        },
+        "ProcessVideoFaceSearchLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-eu-west-1-a246a3c4-abfa",
+              "S3Key": "serverless/nextjs-rekognition-service/dev/1742414009516-2025-03-19T19:53:29.516Z/processVideoFaceSearch.zip"
+            },
+            "Handler": "src/lambda/processVideoFaceSearch.handler",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "process-video-face-search",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "ProcessVideoFaceSearchLogGroup"
+          ]
+        },
+        "ProcessVideoFaceSearchLambdaVersion134OgVBMLGwSbgboorRXd4JyGk0pNmmxYofqiegjY": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "ProcessVideoFaceSearchLambdaFunction"
+            },
+            "CodeSha256": "3vcLyjoyZdB/7qM39cU1Mv+zrTCoQZjDWBhb+cbJc68="
+          }
+        },
+        "ProcessVideoFaceSearchSnsSubscriptionRekognitioncompleted": {
+          "Type": "AWS::SNS::Subscription",
+          "Properties": {
+            "TopicArn": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed",
+            "Protocol": "lambda",
+            "Endpoint": {
+              "Fn::GetAtt": [
+                "ProcessVideoFaceSearchLambdaFunction",
+                "Arn"
+              ]
+            }
+          }
+        },
+        "ProcessVideoFaceSearchLambdaPermissionRekognitioncompletedSNS": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "ProcessVideoFaceSearchLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "sns.amazonaws.com",
+            "SourceArn": "arn:aws:sns:eu-west-1:592084037945:rekognition-completed"
+          }
+        }
+      },
+      "Outputs": {
+        "ServerlessDeploymentBucketName": {
+          "Value": "serverless-framework-deployments-eu-west-1-a246a3c4-abfa",
+          "Export": {
+            "Name": "sls-nextjs-rekognition-service-dev-ServerlessDeploymentBucketName"
+          }
+        },
+        "ProcessVideoFaceSearchLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "ProcessVideoFaceSearchLambdaVersion134OgVBMLGwSbgboorRXd4JyGk0pNmmxYofqiegjY"
+          },
+          "Export": {
+            "Name": "sls-nextjs-rekognition-service-dev-ProcessVideoFaceSearchLambdaFunctionQualifiedArn"
+          }
+        }
+      }
+    }
+  }
+}
