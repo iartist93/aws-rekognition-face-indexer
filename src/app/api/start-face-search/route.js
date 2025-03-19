@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { getAWSServices } from '@/utils/aws-config';
 
 export async function POST(request) {
+  // return NextResponse.json(
+  //   `${request} ${process.env.AWS_REGION} ${process.env.AWS_SNS_TOPIC_ARN} ${process.env.AWS_ROLE_ARN} ${process.env.AWS_ACCESS_KEY_ID} ${process.env.AWS_SECRET_ACCESS_KEY}`,
+  // );
+
   try {
     const { bucketName, videoKey, collectionId, region } = await request.json();
 
@@ -25,8 +29,9 @@ export async function POST(request) {
       FaceMatchThreshold: 80, // Adjust confidence threshold as needed
       NotificationChannel: {
         SNSTopicArn: process.env.AWS_SNS_TOPIC_ARN,
-        RoleArn: process.env.AWS_ROLE_ARN,
+        RoleArn: process.env.AWS_REKOGNITION_ROLE_ARN,
       },
+      JobTag: 'face-search',
     };
 
     const data = await rekognition.startFaceSearch(params).promise();
@@ -38,7 +43,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error starting face search:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to start face search' },
+      { error: 'ERROR: ' + error.message || 'Failed to start face search' },
       { status: 500 },
     );
   }

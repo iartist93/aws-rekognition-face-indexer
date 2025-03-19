@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { StartFaceSearch } from './StartFaceSearch';
+import { Button } from './ui/Button';
 
 interface VideoFaceSearchProps {
   addLog: (message: string) => void;
@@ -12,9 +13,14 @@ export const VideoFaceSearch: React.FC<VideoFaceSearchProps> = ({
   addLog,
   setStatus,
 }) => {
-  const [collectionId, setCollectionId] = useState('');
-  const [bucket, setBucket] = useState('');
-  const [videoKey, setVideoKey] = useState('');
+  const [collectionId, setCollectionId] = useState(
+    process.env.NEXT_PUBLIC_COLLECTION_ID,
+  );
+  const [bucketName, setBucket] = useState(
+    process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
+  );
+  const [videoKey, setVideoKey] = useState(process.env.NEXT_PUBLIC_VIDEO_KEY);
+  const [region, setRegion] = useState(process.env.AWS_REGION || 'eu-west-1');
 
   const handleJobStarted = (jobId: string) => {
     setStatus('Face search job started');
@@ -24,6 +30,44 @@ export const VideoFaceSearch: React.FC<VideoFaceSearchProps> = ({
   const handleError = (error: Error) => {
     setStatus('Error starting face search');
     addLog(`Error: ${error.message}`);
+  };
+
+  const handleStartFaceSearch = async () => {
+    if (!collectionId || !bucketName || !videoKey || !region) {
+      handleError(
+        new Error(
+          'Please fill in all fields (Collection ID, Bucket Name, and Video Key are required)',
+        ),
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/start-face-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          collectionId,
+          bucketName,
+          videoKey,
+          region,
+        }),
+      });
+      const data = await response.json();
+
+      console.log(data);
+
+      if (response.ok) {
+        addLog(`Face search started. Job ID: ${data.JobId}`);
+        setStatus('Face search job started');
+      } else {
+        addLog(`Error: ${data.error}`);
+        setStatus('Failed to start face search');
+      }
+    } catch (error) {
+      addLog(`Error: ${error.message}`);
+      setStatus('Failed to start face search');
+    }
   };
 
   return (
@@ -40,7 +84,7 @@ export const VideoFaceSearch: React.FC<VideoFaceSearchProps> = ({
         <input
           type='text'
           placeholder='S3 Bucket Name'
-          value={bucket}
+          value={bucketName}
           onChange={(e) => setBucket(e.target.value)}
           className='w-full px-3 py-2 border rounded'
         />
@@ -52,13 +96,7 @@ export const VideoFaceSearch: React.FC<VideoFaceSearchProps> = ({
           className='w-full px-3 py-2 border rounded'
         />
 
-        <StartFaceSearch
-          collectionId={collectionId}
-          videoS3Bucket={bucket}
-          videoS3Key={videoKey}
-          onJobStarted={handleJobStarted}
-          onError={handleError}
-        />
+        <Button onClick={handleStartFaceSearch}>Start Face Search</Button>
       </div>
     </div>
   );

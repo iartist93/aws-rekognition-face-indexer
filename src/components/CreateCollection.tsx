@@ -8,7 +8,9 @@ interface CreateCollectionProps {
 }
 
 export function CreateCollection({ addLog, setStatus }: CreateCollectionProps) {
-  const [collectionId, setCollectionId] = useState('');
+  const [collectionId, setCollectionId] = useState(
+    process.env.NEXT_PUBLIC_COLLECTION_ID,
+  );
   const [region, setRegion] = useState(process.env.AWS_REGION || 'eu-west-1');
 
   const handleCreateCollection = async () => {

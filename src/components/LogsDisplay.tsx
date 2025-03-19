@@ -17,9 +17,9 @@ export function LogsDisplay({ logs, status }: LogsDisplayProps) {
           <h3 className='text-lg font-medium'>Activity Log</h3>
           <div className='mt-2 max-h-60 overflow-y-auto p-3 bg-gray-100 rounded-lg text-sm'>
             {logs.map((log, index) => (
-              <div key={index} className='py-1'>
+              <pre key={index} className='py-1'>
                 {log}
-              </div>
+              </pre>
             ))}
           </div>
         </div>

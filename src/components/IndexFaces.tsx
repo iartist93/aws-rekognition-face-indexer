@@ -8,10 +8,16 @@ interface IndexFacesProps {
 }
 
 export function IndexFaces({ addLog, setStatus }: IndexFacesProps) {
-  const [bucketName, setBucketName] = useState('');
-  const [folderPath, setFolderPath] = useState('');
-  const [collectionId, setCollectionId] = useState('');
-  const [personId, setPersonId] = useState('');
+  const [bucketName, setBucketName] = useState(
+    process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
+  );
+  const [folderPath, setFolderPath] = useState(
+    process.env.NEXT_PUBLIC_FOLDER_NAME,
+  );
+  const [collectionId, setCollectionId] = useState(
+    process.env.NEXT_PUBLIC_COLLECTION_ID,
+  );
+  const [personId, setPersonId] = useState(process.env.NEXT_PUBLIC_PERSON_ID);
   const [region, setRegion] = useState(process.env.AWS_REGION || 'eu-west-1');
 
   const handleIndexFaces = async () => {

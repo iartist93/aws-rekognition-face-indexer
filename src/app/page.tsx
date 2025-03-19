@@ -5,6 +5,7 @@ import { CreateCollection } from '@/components/CreateCollection';
 import { IndexFaces } from '@/components/IndexFaces';
 import { LogsDisplay } from '@/components/LogsDisplay';
 import { VideoFaceSearch } from '@/components/VideoFaceSearch';
+import { GetFaceSearch } from '@/components/GetFaceSearch';
 
 export default function Home() {
   const [status, setStatus] = useState('');
@@ -29,6 +30,7 @@ export default function Home() {
                 <CreateCollection addLog={addLog} setStatus={setStatus} />
                 <IndexFaces addLog={addLog} setStatus={setStatus} />
                 <VideoFaceSearch addLog={addLog} setStatus={setStatus} />
+                <GetFaceSearch addLog={addLog} setStatus={setStatus} />
                 <LogsDisplay logs={logs} status={status} />
               </div>
             </div>

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "deploy": "serverless deploy",
-    "deploy:lambda": "serverless deploy function --function processVideoFaceSearch",
+    "deploy:lambda": "serverless deploy function --function processVideoFaceSearch"
   },
   "dependencies": {
     "@aws-sdk/client-rekognition": "^3.758.0",
